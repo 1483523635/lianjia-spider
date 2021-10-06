@@ -54,19 +54,18 @@ def data_viewer():
                       '马甸', '广渠门', '朝阳其他', '南沙滩', '双桥']
     # not_label_list= []
 
+    in_list = ["十里堡"]
     label_list = region_data.keys()  # 横坐标刻度显示值
-    label_list = list(filter(lambda item: item not in not_label_list, label_list))
+    label_list = list(filter(lambda item: item in in_list, label_list))
     label_list.sort(key=reverse, reverse=True)
 
 
-    max = []
-    min = []
-    average = []
-    for label in label_list:
-        max.append(region_data[label].get("max"))
-        min.append(region_data[label].get("min"))
-        average.append(region_data[label].get("average"))
-    x = range(len(max))
+
+    data_label_list_ = dic_data[label_list[0]]
+    data_label_list_.sort()
+    print(data_label_list_)
+    x = range(len(data_label_list_))
+
     """
     绘制条形图
     left: 长条形中点横坐标
@@ -75,9 +74,7 @@ def data_viewer():
     .8
     label: 为后面设置legend准备
     """
-    rects1 = plt.bar(x=x, height=max, width=0.25, alpha=0.8, color='red', label="最大值")
-    rects2 = plt.bar(x=[i + 0.25 for i in x], height=average, width=0.25, color='green', label="平均值")
-    rects3 = plt.bar(x=[i + 0.5 for i in x], height=min, width=0.25, color='blue', label="最小值")
+    rects2 = plt.bar(x=x, height=len(data_label_list_), width=0.5, color='green', label="价格")
     #plt.ylim(0, 50) # y轴取值范围
     plt.ylabel("房价/元")
     """
@@ -85,18 +82,12 @@ def data_viewer():
     参数一：中点坐标
     参数二：显示值
     """
-    label_list_with_count = list(map(lambda item: "{}{}".format(item, len(dic_data[item])), label_list))
-    plt.xticks([index + 0.25 for index in x], label_list_with_count)
+    plt.xticks([index + 0.25 for index in x], data_label_list_)
     plt.xlabel("区")
     plt.title("北京-朝阳二手房两居室价格分析图")
     plt.legend() # 设置题注 # 编辑文本
-    for rect in rects1:
-        height = rect.get_height()
-        plt.text(rect.get_x() + rect.get_width() / 2, height+1, str(height), ha="center", va="bottom")
+
     for rect in rects2:
-        height = rect.get_height()
-        plt.text(rect.get_x() + rect.get_width() / 2, height + 1, str(height), ha="center", va="bottom")
-    for rect in rects3:
         height = rect.get_height()
         plt.text(rect.get_x() + rect.get_width() / 2, height + 1, str(height), ha="center", va="bottom")
     plt.show()

@@ -20,14 +20,15 @@ import threading
 import time
 
 
-def get_list_page_url(city):
+def get_list_page_url(url):
 
-    start_url = "https://{}.lianjia.com/ershoufang".format(city)
+    start_url = url
+    init_url = start_url.format("")
     headers =  {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36',
     }
     try:
-        response = requests.get(start_url, headers=headers)
+        response = requests.get(start_url.format(""), headers=headers)
         # print(response.status_code, response.text)
         doc = pq(response.text)
         total_num =  int(doc(".resultDes .total span").text())
@@ -39,8 +40,7 @@ def get_list_page_url(city):
         page_url_list = list()
 
         for i in range(total_page):
-            url = start_url + "/pg" + str(i + 1) + "/"
-            page_url_list.append(url)
+            page_url_list.append(start_url.format("pg" + str(i + 1)))
             #print(url)
         return page_url_list
 
@@ -54,7 +54,7 @@ detail_list = list()
 # 需要先在本地开启代理池
 # 代理池仓库: https://github.com/Python3WebSpider/ProxyPool
 def get_valid_ip():
-    url = "http://localhost:5000/get"
+    url = "http://localhost:5555/random"
     try:
         ip = requests.get(url).text
         return ip
@@ -111,7 +111,7 @@ def detail_page_parser(res):
             unit_price = doc(".unitPriceValue").text()
             unit_price = unit_price[0:unit_price.index("元")]
             title = doc("h1").text()
-            area = doc(".areaName .info a").eq(0).text().strip()
+            area = doc(".areaName .info a").eq(1).text().strip()
             url = detail_url
             detail_dict["title"] = title
             detail_dict["area"] = area
@@ -149,18 +149,26 @@ def detail_page_parser(res):
                     print(unit_price, title, area)
             except:
                 print("重试失败...")
+                time.sleep(20)
 
 
 def save_data(data,filename):
     with open(filename+".json", 'w', encoding="utf-8") as f:
         f.write(json.dumps(data, indent=2, ensure_ascii=False))
 
+def load_data_from_file():
+    data=[]
+    with open("url.json","r",encoding="utf-8") as f:
+        str = f.read()
+        data = json.loads(str)
+    return data
+
 def main():
     # cq,cs,nj,dl,wh,cc
-    city_list = ['nj']
-    for city in city_list:
-        page_url_list = get_list_page_url(city)
-
+    urls = load_data_from_file()
+    for index, url in enumerate(urls):
+        page_url_list = get_list_page_url(url)
+        print(page_url_list)
         # pool = threadpool.ThreadPool(20)
         # requests = threadpool.makeRequests(page_and_detail_parser, page_url_list)
         # [pool.putRequest(req) for req in requests]
@@ -176,9 +184,9 @@ def main():
 
         print(detail_list)
 
-        save_data(detail_list, city)
+    save_data(detail_list, "chaoyang-new")
 
-        detail_list.clear()
+    detail_list.clear()
 
 if __name__ == '__main__':
     old = time.time()
