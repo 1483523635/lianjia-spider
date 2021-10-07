@@ -1,30 +1,35 @@
 import json
 import matplotlib.pyplot as plt
 import matplotlib
+from selenium import webdriver
+import webbrowser
 
 # 设置中文字体和负号正常显示
 matplotlib.rcParams['font.sans-serif'] = ['SimHei']
 matplotlib.rcParams['axes.unicode_minus'] = False
+# driver = webdriver.Chrome("/Users/lqqu/chromedriver")
 
 
 def load_data():
     global data, dic_data
-    with open("chaoyang-tianshuiyuan-1-2-ju-banlou.json", "r", encoding="utf-8") as f:
+    with open("chaoyang-石佛营-1-2-ju.json", "r", encoding="utf-8") as f:
         str = f.read()
         data = json.loads(str)
     dic_data = dict()
     for i in range(len(data)):
-        fang_ling = int(data[i].get("fang_ling"))
+        fang_ling = (int)(data[i].get("fang_ling"))
         hu_xing = data[i].get("hu_xing")
         lou_kuang = data[i].get("lou_kuang")
         lou_ceng = data[i].get("lou_ceng")
-        total_price = int(data[i].get("total_price"))
+        total_price = (int)(data[i].get("total_price"))
         if fang_ling < 1988 or hu_xing != "2室1厅" or lou_kuang != "板楼" or \
-                "地下室" in lou_ceng or total_price > 380:
+                "地下室" in lou_ceng or total_price > 360:
             continue
         price = (int)(data[i].get("price"))
         xiaoqu_name = data[i].get("xiaoqu_name")
         print(data[i])
+        webbrowser.open_new_tab(data[i].get("url"))
+        # driver.get(data[i].get("url"))
         try:
             dic_data[xiaoqu_name].append(price)
         except:
@@ -90,7 +95,7 @@ def data_viewer():
     label_list_with_count = list(map(lambda item: "{}{}".format(item, len(dic_data[item])), label_list))
     plt.xticks([index + 0.25 for index in x], label_list_with_count)
     plt.xlabel("区")
-    plt.title("北京-朝阳-甜水园-90年代-两室一厅-塔楼二手房两居室价格分析图")
+    plt.title("北京-朝阳-石佛营-88-99-两室一厅-板楼二手房两居室价格分析图")
     plt.legend()  # 设置题注 # 编辑文本
     for rect in rects1:
         height = rect.get_height()

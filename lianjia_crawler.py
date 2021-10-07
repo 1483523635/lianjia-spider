@@ -122,8 +122,9 @@ def extract_response(response, detail_url):
     zhuang_kuang = doc(".subInfo").eq(1).text()
     fangzi_detail = doc(".subInfo").eq(2).text()
     fang_ling = fangzi_detail[0: fangzi_detail.index("\n")]
+    fang_ling = fang_ling[0: fang_ling.index("年")]
     # 塔楼， 板楼
-    lou_kuang = fangzi_detail[fangzi_detail.index("\n/")+2:len(fangzi_detail)]
+    lou_kuang = fangzi_detail[fangzi_detail.index("\n/") + 2:len(fangzi_detail)]
 
     hu_xing = doc(".mainInfo").eq(0).text()
     chao_xiang = doc(".mainInfo").eq(1).text()
@@ -167,6 +168,7 @@ def detail_page_parser(res):
                 response = send_request(detail_url, True)
                 extract_response(response, detail_url)
             except:
+                print("更换IP重试失败")
                 beep()
                 time.sleep(20)
 
@@ -208,9 +210,13 @@ def main():
 
         print(detail_list)
 
-    save_data(detail_list, "chaoyang-tianshuiyuan-1-2-ju-banlou")
+    save_data(detail_list, "chaoyang-石佛营-1-2-ju")
 
     detail_list.clear()
+
+
+def finish():
+    os.system('say "finish."')
 
 
 if __name__ == '__main__':
@@ -218,4 +224,5 @@ if __name__ == '__main__':
     main()
     new = time.time()
     delta_time = new - old
+    finish()
     print("程序共运行{}s".format(delta_time))
